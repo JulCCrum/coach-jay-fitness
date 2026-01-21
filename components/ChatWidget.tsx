@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, X, MessageCircle } from 'lucide-react'
+import { Send, X, MessageCircle, RotateCcw } from 'lucide-react'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -20,6 +20,7 @@ export default function ChatWidget({ isOpen, onToggle, prefilledMessage, onPrefi
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
+  const [sessionRestored, setSessionRestored] = useState(false)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when new messages arrive (only within chat container)
@@ -29,13 +30,69 @@ export default function ChatWidget({ isOpen, onToggle, prefilledMessage, onPrefi
     }
   }, [messages])
 
-  // Send initial greeting when chat opens for the first time
+  // Try to restore existing session
   useEffect(() => {
-    if (isOpen && !hasStarted) {
-      setHasStarted(true)
-      sendMessage('', true)
+    if (isOpen && !hasStarted && !sessionRestored) {
+      restoreOrStartSession()
     }
-  }, [isOpen, hasStarted])
+  }, [isOpen, hasStarted, sessionRestored])
+
+  const restoreOrStartSession = async () => {
+    setSessionRestored(true)
+    setIsLoading(true)
+
+    try {
+      // Try to restore existing session
+      const response = await fetch('/api/chat')
+      const data = await response.json()
+
+      if (data.session && data.session.messages && data.session.messages.length > 0) {
+        // Restore existing conversation
+        setMessages(data.session.messages)
+        setHasStarted(true)
+        setIsLoading(false)
+        return
+      }
+    } catch (error) {
+      console.error('Session restore error:', error)
+    }
+
+    // No existing session, start fresh
+    setHasStarted(true)
+    sendMessage('', true)
+  }
+
+  const startNewConversation = async () => {
+    // Clear the session cookie by starting fresh
+    setMessages([])
+    setHasStarted(true)
+    setIsLoading(true)
+
+    // Delete the cookie client-side isn't possible for httpOnly cookies
+    // So we just start a new conversation which will be saved as a new session
+    // For a true "new session", we'd need an API endpoint to clear it
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [], newSession: true }),
+      })
+
+      const data = await response.json()
+      if (data.message) {
+        setMessages([{ role: 'assistant', content: data.message }])
+      }
+    } catch (error) {
+      console.error('New conversation error:', error)
+      setMessages([{
+        role: 'assistant',
+        content: "Hey! Welcome to Lessons Not Losses Fitness. I'm here to help you get started with a personalized meal plan. What's your name?",
+      }])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Handle prefilled message
   useEffect(() => {
@@ -124,6 +181,15 @@ export default function ChatWidget({ isOpen, onToggle, prefilledMessage, onPrefi
               <span className="text-xs text-gray-400">Online</span>
             </div>
           </div>
+          {messages.length > 1 && (
+            <button
+              onClick={startNewConversation}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              title="Start new conversation"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
           <button
             onClick={onToggle}
             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
