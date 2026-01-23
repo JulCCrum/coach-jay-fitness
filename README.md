@@ -311,8 +311,8 @@ coach-jay-fitness/
 ### Step 1: Clone and Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/lnl-fitness.git
-cd lnl-fitness
+git clone https://github.com/JulCCrum/coach-jay-fitness.git
+cd coach-jay-fitness
 npm install
 ```
 
