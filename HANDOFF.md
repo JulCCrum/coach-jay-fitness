@@ -27,16 +27,38 @@ Plan for 1–2 hours total, mostly waiting for things to load.
 
 ---
 
-## Part 1: Accept the Firebase project transfer
+## Part 1: Take ownership of the Firebase project
 
-The seller will send you an email from Google asking you to accept ownership of the Firebase project called **lnl-fitness**.
+The seller will give you Owner access to the Firebase project called **lnl-fitness**. The project (database + login system + all customer data) will become yours.
 
-1. Open the email.
-2. Click **Accept transfer**.
-3. Sign in with the Google account you want to own the project.
-4. You'll land in the Firebase Console at https://console.firebase.google.com — you should see **lnl-fitness** in your project list.
+### Step-by-step
 
-✅ Done. The database and login system are now yours.
+1. Send the seller the **Google account email** you want to use to own the project. (Use Gmail or a Google Workspace email — the same one you'll use for everything in this guide.)
+2. The seller will add you as an **Owner** on the project.
+3. You'll get an email from Google saying you've been added to a project. Click the link, sign in with the Google account you provided, and you'll land in the Firebase Console at https://console.firebase.google.com.
+4. You should see **lnl-fitness** in your project list. Click it to confirm you have access.
+
+### Billing transfer (important)
+
+The Firebase project is currently linked to the seller's Google Cloud billing account. To fully separate from the seller, you need to attach the project to **your own** billing account:
+
+1. Go to https://console.cloud.google.com/billing
+2. Sign in with your Google account.
+3. Click **Create account** → enter your billing details (credit card).
+4. Once created, go to https://console.cloud.google.com/billing/projects
+5. Find **lnl-fitness** in the list → click the **⋮ menu** → **Change billing**.
+6. Select your new billing account → **Set account**.
+
+After this, the seller can be safely removed from the project (see below).
+
+### Remove the seller's access
+
+Once you've taken ownership and transferred billing:
+
+1. In Firebase Console → **lnl-fitness** → ⚙️ **Project settings** → **Users and permissions**.
+2. Find the seller's account in the list → **Remove** (the trash icon).
+
+✅ Done. The database, auth system, and billing are now 100% yours.
 
 ---
 
